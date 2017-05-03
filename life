@@ -1,0 +1,104 @@
+#!/bin/python2
+# -*- coding: utf-8
+import curses
+import random
+import copy
+import time
+import locale
+locale.setlocale(locale.LC_ALL,'')
+
+def randomize(width,height):
+    grid = []
+    for y in range(0,height):
+        grid.append([])
+        for x in range(0,width):
+            if random.uniform(0,1) > 0.5:
+                grid[y].append(1)
+            else:
+                grid[y].append(0)
+    return grid
+
+
+
+def main():
+
+    running = True
+
+    stdscr = curses.initscr()
+    curses.noecho()
+    curses.cbreak()
+    curses.curs_set(0)
+    stdscr.keypad(1)
+    curses.start_color()
+    curses.use_default_colors()
+    stdscr.nodelay(True)
+    height,width = stdscr.getmaxyx()
+    width -= 1
+
+    for i in range(0, curses.COLORS):
+        fg = i+8
+        if fg >= curses.COLORS:
+            fg -= curses.COLORS
+        curses.init_pair(i+1, fg, i)
+    
+    grid = []
+    sgrid = []
+    for y in range(0,height):
+        grid.append([])
+        sgrid.append([])
+        for x in range(0,width):
+            if random.uniform(0,1) > 0.5:
+                grid[y].append(0)
+                sgrid[y].append(0)
+            else:
+                grid[y].append(1)
+                sgrid[y].append(1)
+
+    while running:
+        stdscr.erase()
+        for y in range(0,height):
+            for x in range(0,width):
+                live_neighbours = 0
+                for ny in xrange(y-1,y+2):
+                    if ny >= height:
+                        ny -= height
+                    if ny < 0:
+                        ny += height
+                    for nx in xrange(x-1,x+2):
+                        if nx >= width:
+                            nx -= width
+                        if nx < 0:
+                            nx += width
+                        if nx == x and ny == y:
+                            continue
+                        if grid[ny][nx] == 1:
+                            live_neighbours += 1
+                if grid[y][x] == 0:
+		    ch = ' '
+                    if live_neighbours == 3:
+                        sgrid[y][x] = 1
+                else:
+		    ch = ' '
+                    if live_neighbours < 2:
+                        sgrid[y][x] = 0
+                    elif live_neighbours > 3:
+                        sgrid[y][x] = 0
+                    else:
+                        sgrid[y][x] = 1
+                if live_neighbours > 0:
+                    stdscr.addstr(y,x,ch,curses.color_pair(live_neighbours))
+        stdscr.refresh()
+        c = stdscr.getch()
+        if c == ord('q'):
+            running = False
+        elif c == ord('r'):
+            sgrid = randomize(width,height)
+        grid = copy.deepcopy(sgrid)
+    curses.nocbreak()
+    stdscr.keypad(0)
+    curses.echo()
+    curses.endwin()
+
+if __name__ == '__main__':
+    main()
+
