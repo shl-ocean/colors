@@ -1,4 +1,4 @@
-#!/bin/python2
+#!/usr/bin/env python2
 # -*- coding: utf-8
 
 import os
@@ -85,8 +85,8 @@ def lendir(begin,direction,length):
 def get_direction(p1, p2):
     p1x,p1y = p1
     p2x,p2y = p2
-    deltaY = float(p2y) - float(p1y)
-    deltaX = float(p2x) - float(p1x)
+    deltaY = p2y - p1y
+    deltaX = p2x - p1x
     direction = math.degrees(math.atan2(float(deltaY), float(deltaX)))
     return direction
 
